@@ -37,10 +37,18 @@ void Processor::Initialize() {
     char* context = NULL;
     char* p = strtok_s(m_groups_string, "|", &context);
     while (m_group_count < MAX_GROUPS && p != NULL) {
-        COPY_STR(m_groups[m_group_count], p);
-        LOG("group %d: %s", m_group_count, m_groups[m_group_count]);
+        int position = 0;
+        for (; position < m_group_count; ++position) {
+            if (strncmp(p, m_groups[position], sizeof(m_groups[position])) == 0) {
+                break;
+            }
+        }
+        if (position == m_group_count) {
+            COPY_STR(m_groups[m_group_count], p);
+            LOG("group %d: %s", m_group_count, m_groups[m_group_count]);
+            ++m_group_count;
+        }
         p = strtok_s(NULL, "|", &context);
-        ++m_group_count;
     }
 
     SocketService::Instance().OnConfigChanged(m_notice_server, m_port);
