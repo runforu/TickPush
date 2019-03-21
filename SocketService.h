@@ -42,7 +42,7 @@ private:
     char m_server[256];
     int m_port;
     Synchronizer m_synchronizer;
-    long m_last_sent_time;
+    time_t m_last_sent_time;
     bool m_stop;
     HANDLE m_thread;
 };

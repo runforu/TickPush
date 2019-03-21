@@ -24,8 +24,11 @@ int SocketService::SendData(const char *data, int size) {
         }
         bytes += ret;
     }
+    if (bytes == size) {
+        m_last_sent_time = time(NULL);
+    }
     m_synchronizer.Unlock();
-    InterlockedExchange(&m_last_sent_time, (long)time(NULL));
+
     return bytes;
 }
 
@@ -66,8 +69,7 @@ void SocketService::HeartBeat() {
                 break;
             }
         }
-        long t = (long)time(NULL);
-        if (t - m_last_sent_time > 5) {
+        if (time(NULL) - m_last_sent_time >= 5) {
             if (SendData(" ", 1) != 1) {
                 Init();
             }
