@@ -58,7 +58,7 @@ void APIENTRY MtSrvCleanup() {
 int APIENTRY MtSrvPluginCfgSet(const PluginCfg* values, const int total) {
     LOG("MtSrvPluginCfgSet total = %d.", total);
     int res = Config::Instance().Set(values, total);
-    Processor::Instance().Reinitialize();
+    Processor::Instance().Initialize();
     return (res);
 }
 

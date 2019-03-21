@@ -11,7 +11,7 @@ void HandleIncomingSocket(void* parg) {
         std::cout << "accept error !" << std::endl;
         return;
     }
-    char recv_data[256];
+    char recv_data[4096];
     while (true) {
         // receive data
         int ret = recv(client_socket, recv_data, sizeof(recv_data) - 1, 0);
@@ -19,6 +19,7 @@ void HandleIncomingSocket(void* parg) {
             recv_data[ret] = 0x00;
             std::cout << "data :[" << recv_data << "]" << std::endl;
         }
+        Sleep(100L);
     }
     closesocket(client_socket);
     _endthread();

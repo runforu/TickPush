@@ -12,9 +12,7 @@ void Processor::Shutdown(void) {
     ShowStatus();
 }
 
-Processor::Processor() : m_reinitialize_flag(0), m_disable_plugin(0), m_group_count(0), m_port(220) {
-    LOG("Processor::Processor   port =%d", m_port);
-}
+Processor::Processor() : m_disable_plugin(0), m_group_count(0), m_port(0) {}
 
 Processor& Processor::Instance() {
     static Processor _instance;
@@ -33,6 +31,9 @@ void Processor::Initialize() {
     Config::Instance().GetString("Groups", m_groups_string, sizeof(m_groups_string) - 1, "");
     Config::Instance().GetInteger("Port", &m_port, "8888");
 
+    m_group_count = 0;
+    memset(m_groups, 0, sizeof(m_groups));
+
     char* context = NULL;
     char* p = strtok_s(m_groups_string, "|", &context);
     while (m_group_count < MAX_GROUPS && p != NULL) {
@@ -46,10 +47,6 @@ void Processor::Initialize() {
 }
 
 void Processor::TickApply(const ConSymbol* symbol, FeedTick* inf) {
-    if (InterlockedExchange(&m_reinitialize_flag, 0) != 0) {
-        Initialize();
-    }
-
     if (m_disable_plugin) {
         return;
     }
@@ -58,24 +55,15 @@ void Processor::TickApply(const ConSymbol* symbol, FeedTick* inf) {
         return;
     }
 
-    FeedTick tick;
-    memcpy(&tick, inf, sizeof(FeedTick));
-
     char buf[1024] = {0};
-    sprintf_s(buf, "{\"symbol\":\"%s\",\"ctm\":%d,\"bank\":\"%s\",\"feeder\":%d,\"quotes\":[", tick.symbol, tick.ctm, tick.bank,
-              tick.feeder);
     for (int i = 0; i < m_group_count; i++) {
-        SpreadDiff(m_groups[i], symbol, &tick);
+        double bid = inf->bid;
+        double ask = inf->ask;
+        SpreadDiff(m_groups[i], symbol, &bid, &ask);
         int len = strlen(buf);
-        if (i != m_group_count - 1) {
-            sprintf_s(buf + len, sizeof(buf) - len - 1, "{\"group\":\"%s\",\"bid\":%f,\"ask\":%f},", m_groups[i], tick.bid,
-                      tick.ask);
-        } else {
-            sprintf_s(buf + len, sizeof(buf) - len - 1, "{\"group\":\"%s\",\"bid\":%f,\"ask\":%f}]}|", m_groups[i], tick.bid,
-                      tick.ask);
-        }
+        sprintf_s(buf + len, sizeof(buf) - len - 1, "%s,%s,%d,%f,%f>", inf->symbol, m_groups[i], inf->ctm, bid, ask);
     }
-    LOG(buf);
+
     SocketService::Instance().SendData(buf, strlen(buf));
 }
 
@@ -85,10 +73,10 @@ inline int Processor::GetSpreadDiff(const char* group, const ConSymbol* con_symb
     return con_group.secgroups[con_symbol->type].spread_diff;
 }
 
-inline void Processor::SpreadDiff(const char* group, const ConSymbol* con_symbol, FeedTick* tick) {
+inline void Processor::SpreadDiff(const char* group, const ConSymbol* con_symbol, double* bid, double* ask) {
     int diff = GetSpreadDiff(group, con_symbol);
     if (diff != 0) {
-        tick->bid = NormalizeDouble(tick->bid - con_symbol->point * diff / 2, con_symbol->digits);
-        tick->ask = NormalizeDouble(tick->ask + con_symbol->point * diff / 2, con_symbol->digits);
+        *bid = NormalizeDouble(*bid - con_symbol->point * diff / 2, con_symbol->digits);
+        *ask = NormalizeDouble(*ask + con_symbol->point * diff / 2, con_symbol->digits);
     }
 }

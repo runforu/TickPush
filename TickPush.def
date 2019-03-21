@@ -1,4 +1,4 @@
-LIBRARY FeedMonitor
+LIBRARY TickPush
 
 EXPORTS
     MtSrvAbout
