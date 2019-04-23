@@ -2,6 +2,7 @@
 #include <iostream>
 #include <process.h>
 #include <winsock2.h>
+#include <time.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -17,7 +18,7 @@ void HandleIncomingSocket(void* parg) {
         int ret = recv(client_socket, recv_data, sizeof(recv_data) - 1, 0);
         if (ret > 0) {
             recv_data[ret] = 0x00;
-            std::cout << "data :[" << recv_data << "]" << std::endl;
+            std::cout << "time: " << time(0) << " date: [" << recv_data << "]" << std::endl;
         }
         Sleep(100L);
     }
