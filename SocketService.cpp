@@ -63,12 +63,12 @@ void SocketService::HeartBeat(void *self) {
 void SocketService::HeartBeat() {
     FUNC_WARDER;
 
-    while (!m_stop) {
+    while (true) {
         // for fast exit and reduce frequently calling time(NULL)
         for (int i = 0; i < 200; i++) {
             Sleep(25ul);
             if (m_stop) {
-                break;
+                return; // thread ends here
             }
         }
         if (time(NULL) - m_last_sent_time >= 5) {

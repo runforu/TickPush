@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define MAX_GROUPS 16
+#define MAX_GROUP_SETTINTS 4
 
 class Processor {
 public:
@@ -22,18 +22,16 @@ private:
     Processor(const Processor&) = delete;
     void operator=(const Processor&) = delete;
 
-    inline int GetSpreadDiff(const char* group, const ConSymbol* con_symbol);
-
-    inline void SpreadDiff(const char* group, const ConSymbol* con_symbol, double* bid, double* ask);
+    inline bool SpreadDiff(const char* group, const ConSymbol* con_symbol, double* bid, double* ask);
 
 private:
     //--- configurations
     int m_disable_plugin;
     char m_notice_server[128];
-    char m_groups_string[128];
+    char m_groups_string[MAX_GROUP_SETTINTS][128];
     int m_port;
 
-    char m_groups[MAX_GROUPS][16];
+    char m_groups[MAX_SEC_GROUPS][16];
     int m_group_count;
 };
 
