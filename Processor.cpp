@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <winsock2.h>
 #include "Config.h"
+#include "LicenseService.h"
 #include "Loger.h"
 #include "Processor.h"
 #include "ServerApi.h"
 #include "SocketService.h"
-#include "LicenseService.h"
 
 void Processor::Shutdown(void) {
     SocketService::Instance().Stop();
@@ -70,15 +70,15 @@ void Processor::Initialize() {
 }
 
 void Processor::TickApply(const ConSymbol* symbol, FeedTick* inf) {
+    if (m_disable_plugin) {
+        return;
+    }
+
 #ifdef _LICENSE_VERIFICATION_
     if (!LicenseService::Instance().IsLicenseValid()) {
         return;
     }
 #endif  // !_LICENSE_VERIFICATION_
-
-    if (m_disable_plugin) {
-        return;
-    }
 
     if (m_group_count == 0) {
         return;
