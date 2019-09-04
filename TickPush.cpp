@@ -3,7 +3,10 @@
 #include "Processor.h"
 #include "ServerApi.h"
 
-PluginInfo ExtPluginInfo = {"Tick Push", 1, "DH Copyright.", {0}};
+extern const char *PLUGIN_VERSION_STRING;
+#define PLUGIN_NAME "Tick Push"
+#define PLUGIN_VERSION 1
+#define PLUGIN_COPYRIGHT "DH Copyrigh."
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID /*lpReserved*/) {
     switch (ul_reason_for_call) {
@@ -30,7 +33,10 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID /*lpReser
 
 void APIENTRY MtSrvAbout(PluginInfo* info) {
     if (info != NULL) {
-        memcpy(info, &ExtPluginInfo, sizeof(PluginInfo));
+        sprintf(info->name, "%s %s", PLUGIN_NAME, PLUGIN_VERSION_STRING);
+        info->version = PLUGIN_VERSION;
+        sprintf(info->copyright, "%s", PLUGIN_COPYRIGHT);
+        memset(info->reserved, 0, sizeof(info->reserved));
     }
 }
 

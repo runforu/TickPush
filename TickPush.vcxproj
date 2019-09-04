@@ -277,6 +277,7 @@
     <ClCompile Include="LicenseClient.cpp" />
     <ClCompile Include="LicenseService.cpp" />
     <ClCompile Include="Loger.cpp" />
+    <ClCompile Include="PluginVersion.cpp" />
     <ClCompile Include="ServerApi.cpp" />
     <ClCompile Include="Processor.cpp" />
     <ClCompile Include="SocketService.cpp" />
